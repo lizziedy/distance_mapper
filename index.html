@@ -1,4 +1,11 @@
 <!DOCTYPE html>
+
+<!--copyright (c) 2013, by Lizzie DeYoung. All rights reserved. -->
+<!--Text, graphics, and HTML code are protected by US and International -->
+<!--Copyright Laws, and may not be copied, reprinted, published, -->
+<!--translated, hosted, or otherwise distributed by any means without -->
+<!--explicit permission.-->
+
 <html>
 <head>
 <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
@@ -6,7 +13,7 @@
 <script type="text/javascript"
 src="http://maps.google.com/maps/api/js?sensor=false&key=AIzaSyAUNU_WOEBXrGfGC8J_jUHFrugktyMzyDc"></script>
 <script type="text/javascript" src="js/jquery.js"></script>
-<script type="text/javascript" src="js/time_radius.js"></script>
+<script type="text/javascript" src="js/time_radius.min.js"></script>
 <script type="text/javascript" src="js/bootstrap.min.js"></script>
 <script type="text/javascript" src="js/html5shiv.js"></script>
 <script type="text/javascript" src="js/respond.min.js"></script>
@@ -32,20 +39,23 @@ src="http://maps.google.com/maps/api/js?sensor=false&key=AIzaSyAUNU_WOEBXrGfGC8J
 }
 </style>
 
-<form id='theForm' method='post' action='http://www.zillow.com/homes/for_sale/42.442398,-71.111498,42.391706,-71.224279_rect/12_zm/_fm/1_fr/' target='TheNewWindow'>
-  <input type='hidden' name='clipPolygon'
-  value='42.424787,-71.167288|42.411861,-71.190805|42.407171,-71.190462|42.403495,-71.185999|42.403242,-71.155272|42.40489,-71.152868|42.41072,-71.15201|42.413508,-71.153727|42.417057,-71.158533|42.419338,-71.168146|42.421999,-71.169691|42.425674,-71.169004|42.424787,-71.167288'/>
-  <input type='hidden' name='isMapSearch'
-  value='true'/>
-  <input type='hidden' name='zoom' value='12'/>
-</form>
-
 <div class="container">
-  <div class="navbar navbar-default">
+  
+  <!-- HEADER -->
+  <div class="header">
+    <div class="navbar navbar-default">
     <div class="navbar-header">
-      <div class="navbar-brand" href="#">Distance Mapper</div>
+      <a class="navbar-brand" href="index.html">distance mapper</a>
+    </div>
+    <div class="navbar-collapse collapse">
+      <ul class="nav navbar-nav navbar-right">
+	<li><a href="contact.html">contact info</a></li>
+	<li><a href="terms.html">terms & conditions</a></li>
     </div>
   </div>
+  </div>
+ <!-- END HEADER -->
+  
   <div class="well">
   <div class="row">
     <div class="col-md-4">
@@ -56,13 +66,16 @@ src="http://maps.google.com/maps/api/js?sensor=false&key=AIzaSyAUNU_WOEBXrGfGC8J
       <div class="form-group">
      <label>transportation time</label>
         <div class="row">
-	  <div class="col-md-2">
-	      <input class="form-control" id="hours" type=number style="width: 60px;"/>
+	  <div class="col-md-12">
+	    <div style="width: 75px; float: left">
+	      <input class="form-control" id="hours" type=number
+  style="width: 60px;"/>
 	    hours
-	  </div>
-	  <div class="col-md-2">
+	      </div>
+	    <div style="width: 75px; float: left">
 	      <input class="form-control" id="minutes" type=number value="20" style="width: 60px;"/>
 	    minutes
+	      </div>
 	  </div>
 	</div>
 	</div>
@@ -74,14 +87,21 @@ src="http://maps.google.com/maps/api/js?sensor=false&key=AIzaSyAUNU_WOEBXrGfGC8J
 	<option value="WALKING">Walking</option>
       </select>
 	</div>
-      <button onclick="run();" class="btn">Go!</button>
+      <button onclick="run();" class="btn btn-primary">Go!</button>
       <div id="dir-container"></div>
+      <div class="well" style="margin-top: 20px">
+	<p>
+	Do things look a bit off? Click <a>here</a> to
+  find out why.
+	</p>
+      </div>
     </div>
     <div class="col-md-8" id="map-holder">
       <div id="map-container" />
    </div>
   </div>
 </div>
+
 
 <!--
 <div id="side-container">

@@ -1,5 +1,10 @@
-
-
+/**
+ * copyright (c) 2013, by Lizzie DeYoung. All rights reserved.
+ * Text, graphics, and HTML code are protected by US and International
+ * Copyright Laws, and may not be copied, reprinted, published,
+ * translated, hosted, or otherwise distributed by any means without
+ * explicit permission.
+*/
 
 function RadialPoint() {
     this.current = null;
@@ -357,10 +362,9 @@ function initialize() {
     form_container = new FormContainer(null);
     map_container = new MapContainer(null);
     services = new Services(null);
-
-    var latLng = new google.maps.LatLng(37.77493, -122.419415);
+    var latLng = new google.maps.LatLng(39.8282, -98.5795);
     map_container.map = new google.maps.Map(form_container.map, {
-	zoom: 8,
+	zoom: 4,
 	center: latLng,
 	mapTypeId: google.maps.MapTypeId.ROADMAP
     });
@@ -443,7 +447,7 @@ function check_heights() {
 }
 
 function set_map_size() {
-    var h = $('#map-holder').innerHeight();
+    var h = $('#map-holder').innerWidth();
     var w = $('#map-holder').innerWidth();
     var width_buffer = 30;
     var map = $('#map-container')
@@ -458,11 +462,3 @@ $(document).ready(function(){
 $(window).resize(function(){
     set_map_size();
 });
-
-function to_zillow() {
-    var base_address = "http://www.zillow.com/homes/for_sale/";
-    var bound = time_radius.get_bounds();
-    var box=bound.ba.d + "," + bound.fa.d + "," + bound.ba.b + "," + bound.fa.b + "_rect";
-    window.open(base_address + box, 'TheNewWindow');
-    //document.getElementById('theForm').submit();
-}
