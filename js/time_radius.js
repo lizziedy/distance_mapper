@@ -178,13 +178,24 @@ function TimeRadius(args) {
 		var point = this.points[i];
 		if(point.upper_bound != null && 
 		   point.upper_time - this.time < this.error &&
-		   point.upper_time - this.time < this.time - point.lower_time) {
+		   (point.lower_time != null && 
+		    point.upper_time - this.time < this.time - point.lower_time)) {
 		    point.current = point.upper_bound;
 		    point.time = point.upper_time;
 		}
 		else if(point.lower_bound != null) {
-		    point.current = point.lower_bound;
-		    point.time = point.lower_time;
+		    if(this.time - point.lower_time < this.error) {
+			point.current = point.lower_bound;
+			point.time = point.lower_time;
+		    } else if (point.upper_bound != null) {
+			var avg_lat = (point.lower_bound.lat() + point.upper_bound.lat()) / 2;
+			var avg_lon = (point.lower_bound.lng() + point.upper_bound.lng()) / 2;
+			point.current = new google.maps.LatLng(avg_lat, avg_lon);
+			point.time = (point.lower_time + point.upper_time) / 2;
+		    } else {
+			point.current = point.lower_bound;
+			point.time = point.lower_time;
+		    }
 /*
 		if(point.lower_bound != null && 
 		   point.lower_time - this.time < this.error &&
@@ -404,7 +415,6 @@ function find_time_radius(results, status) {
 
 	time_radius = new TimeRadius({center: center, time: time});
 	map_container.map.setCenter(time_radius.center);
-	//map_container.set_boundary(time_radius.points, time_radius.center);
 	get_time_bounds();
     };
 }
@@ -437,24 +447,6 @@ function calculate_time_bounds(response, status) {
 	//	map_container.set_boundary(time_radius.points, time_radius.center);
 	var cont = time_radius.refine_points();
 
-/*
-	if(calculate_iter < 4) {
-	    if(cont) {
-		get_time_bounds();
-	    } else {
-		calculate_iter++;
-		if(calculate_iter < 4) {
-		    if(calculate_iter == 4 - 1) {
-			time_radius.is_done = true;
-		    }
-		    time_radius.num_iterations = 0;
-		    get_time_bounds();
-		}
-	    }
-	} 
-	map_container.set_boundary(time_radius.points, time_radius.center);
-	map_container.map.fitBounds(time_radius.get_bounds());
-*/
 	if(cont){
 	    get_time_bounds();
 	} else {
