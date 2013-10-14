@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+
+<!--copyright (c) 2013, by Lizzie DeYoung. All rights reserved. -->
+<!--Text, graphics, and HTML code are protected by US and International -->
+<!--Copyright Laws, and may not be copied, reprinted, published, -->
+<!--translated, hosted, or otherwise distributed by any means without -->
+<!--explicit permission.-->
+
+<html>
+<head>
+<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+<link href="css/bootstrap.css" rel="stylesheet" />
+<script type="text/javascript"
+src="http://maps.google.com/maps/api/js?sensor=false&key=AIzaSyAUNU_WOEBXrGfGC8J_jUHFrugktyMzyDc"></script>
+<script type="text/javascript" src="js/jquery.js"></script>
+<script type="text/javascript" src="js/bootstrap.min.js"></script>
+<script type="text/javascript" src="js/html5shiv.js"></script>
+<script type="text/javascript" src="js/respond.min.js"></script>
+</head>
+<body>
+
+<style>
+#text-segment {
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+img {
+  width: 80%;
+  height: 80%;
+  margin-left: auto;
+  margin-right: auto;
+}
+</style>
+
+<div class="container">
+  
+  <!-- HEADER -->
+  <div class="header">
+    <div class="navbar navbar-default">
+    <div class="navbar-header">
+      <a class="navbar-brand" href="index.html">distance mapper (beta)</a>
+    </div>
+    <div class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+	<li><a href="about.html">about</a></li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+	<li><a href="contact.html">contact info</a></li>
+	<li><a href="terms.html">terms & conditions</a></li>
+      </ul>
+    </div>
+  </div>
+  </div>
+  <!-- END HEADER -->
+
+  <div class="well">
+    <div id="text-segment">
+      <h3>Known Issues</h3>
+      <ul>
+	<li>
+   <a href="#out_bound_highway">
+    There are some areas near the time-boundary that should clearly be
+    included within the time-boundary</a>
+	</li>
+	<li>
+   <a href="#ace_locks">I am in the middle of the Atlantic Ocean on top of "Ace Lock
+   Service Inc"</a>
+	</li>
+	<li>
+    <a href="#crazy_shape">I am near a large body of water or am in a
+   relatively isolated area, and the shape is completely wonky</a>
+	</li>
+      </ul>
+
+      <h4>Is your issue not included in this list? <a
+      href="contact.html">Contact us</a>.
+
+      <h3>Explanations</h3>
+      
+   <div id="out_bound_highway" style="margin-top:20px">
+     <label>There are some areas near the time-boundary that should clearly be
+    included within the time-boundary</label>
+     <br />
+     <img src="img/out_bound_highway.png" class="img-responsive" />
+     <br />
+      <p>
+     There are points in this image that seem like they
+   should be included in the specified time-boundary, particularly,
+   the highway in the top, near Hazel Dell South.
+     </p>
+     <p>
+     The shape is calculated using 20 points distributed radially the
+   center point. Because no point sits on that road but rather near
+   the road, the furthest point you can get to on that road is not
+   included in the shape calculation. Consequently, the resulting
+   shape is just an estimate, and this issue should be taken into
+   account when using the distance mapper.
+    </p>
+    </div>
+    <div id="ace_locks" style="margin-top:20px">
+      <label>I am in the middle of the Atlantic Ocean on top of "Ace Lock
+   Service Inc"</label>
+       <br />
+     <img src="img/ace_lock.png" class="img-responsive" />
+     <br />
+      <p>
+      This bizarre result seems to happen when small areas surrounded
+   by water are used in the address. An example is Oahu, Hawaii. This
+   is a known issue and we are working to address it.
+      </p>
+    </div>
+    <div id="crazy_shape" style="margin-top:20px">
+      <label>I am near a large body of water or am in a
+   relatively isolated area, and the shape is completely wonky</label>
+       <br />
+     <img src="img/crazy_anchorage.png" class="img-responsive" />
+     <br />
+      <p>
+      This crazy shape business seems to occur when the center point
+   is a relatively isolated area. For instance, there are very few
+   roads one can take out of Anchorage, AK, for 3 hours. Very few of
+   the points used in the calculation were actually accessible by
+   driving, so only a few of them could be used to draw the shape,
+   resulting in a bizarre, unhelpful time-boundary. This is a known
+   issue and we are working to address it.
+ </div>
+ </div>
+</div>
+</body> </html>

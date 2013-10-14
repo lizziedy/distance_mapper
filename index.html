@@ -13,7 +13,7 @@
 <script type="text/javascript"
 src="http://maps.google.com/maps/api/js?sensor=false&key=AIzaSyAUNU_WOEBXrGfGC8J_jUHFrugktyMzyDc"></script>
 <script type="text/javascript" src="js/jquery.js"></script>
-<script type="text/javascript" src="js/time_radius.min.js"></script>
+<script type="text/javascript" src="js/time_radius.js"></script>
 <script type="text/javascript" src="js/bootstrap.min.js"></script>
 <script type="text/javascript" src="js/html5shiv.js"></script>
 <script type="text/javascript" src="js/respond.min.js"></script>
@@ -45,18 +45,25 @@ src="http://maps.google.com/maps/api/js?sensor=false&key=AIzaSyAUNU_WOEBXrGfGC8J
   <div class="header">
     <div class="navbar navbar-default">
     <div class="navbar-header">
-      <a class="navbar-brand" href="index.html">distance mapper</a>
+      <a class="navbar-brand" href="index.html">distance mapper (beta)</a>
     </div>
     <div class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+	<li><a href="about.html">about</a></li>
+      </ul>
       <ul class="nav navbar-nav navbar-right">
 	<li><a href="contact.html">contact info</a></li>
 	<li><a href="terms.html">terms & conditions</a></li>
+      </ul>
     </div>
   </div>
   </div>
  <!-- END HEADER -->
   
   <div class="well">
+    <p>
+    Enter an address and a time limit to find out locations are in the time-boundary.
+    </p>
   <div class="row">
     <div class="col-md-4">
       <div class="form-group">
@@ -91,7 +98,7 @@ src="http://maps.google.com/maps/api/js?sensor=false&key=AIzaSyAUNU_WOEBXrGfGC8J
       <div id="dir-container"></div>
       <div class="well" style="margin-top: 20px">
 	<p>
-	Do things look a bit off? Click <a>here</a> to
+	Do things look a bit off? Click <a href="badness.html">here</a> to
   find out why.
 	</p>
       </div>
@@ -102,30 +109,6 @@ src="http://maps.google.com/maps/api/js?sensor=false&key=AIzaSyAUNU_WOEBXrGfGC8J
   </div>
 </div>
 
-
-<!--
-<div id="side-container">
-  <ul>
-    <li class="dir-label">Address:</li>
-   <li><input id="address" type=text value="202 burlington rd,
- bedford, ma"/></li>
-    <li class="dir-label">Time:</li>
-   <li><input id="time" type=text value="20"/></li>
-  </ul>
-  <div>
-    <select id="route-type">
-      <option value="DRIVING" selected="selected">Driving</option>
-      <option value="BICYCLING">Bicycling</option>
-      <option value="WALKING">Walking</option>
-   </select>
-    <input onclick="run();" type=button value="Go!"/>
-    <input onclick="get_time_bounds();" type=button value="Refresh"/>
-    <input onclick="to_zillow();" type=button value="Check Zillow"/>
-  </div>
-  <div id="dir-container"></div>
-</div>
-<div id="map-container"></div>
--->
 <script type="text/javascript">
 
 // Onload handler to fire off the app.

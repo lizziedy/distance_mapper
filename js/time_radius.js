@@ -447,12 +447,13 @@ function check_heights() {
 }
 
 function set_map_size() {
-    var h = $('#map-holder').innerWidth();
     var w = $('#map-holder').innerWidth();
     var width_buffer = 30;
+    w = w - width_buffer;
+    var h = w*.8
     var map = $('#map-container')
     map.css('height', h);
-    map.css('width', w - width_buffer);
+    map.css('width', w);
 }
 
 $(document).ready(function(){
