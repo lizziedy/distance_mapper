@@ -32,6 +32,7 @@ function RadialPoint() {
 	}
     };
 
+/* replaced with 'shrink_until_find'
     this.refine_later = function(adjustment_trend, hub, first) {
 	var lat;
 	var lon;
@@ -54,6 +55,7 @@ function RadialPoint() {
 	this.current = new google.maps.LatLng(hub.lat() + lat, hub.lng() + lon);
 	this.should_refine_later = false;
     }
+    */
 
     this.refine_with_upper_lower = function(goal_time, hub) {
 	var diff_lat = this.upper_bound.lat() - this.lower_bound.lat();
@@ -87,6 +89,12 @@ function RadialPoint() {
 	return ratio;
     };
 
+    this.shrink_until_find = function(hub) {
+	var lat = (this.current.lat() - hub.lat()) * .5;
+	var lon = (this.current.lng() - hub.lng()) * .5;
+        this.current = new google.maps.LatLng(hub.lat() + lat, hub.lng() + lon);
+    }
+
     this.refine = function (goal_time, hub) {
 	var prev_time = this.time;
 	this.should_refine_later = false;
@@ -99,8 +107,11 @@ function RadialPoint() {
 	    this.is_estimate = false;
 	    return this.refine_with_time(goal_time, hub);
 	} else {
-	    this.should_refine_later = true;
-	    this.is_estimate = true;
+	    this.shrink_until_find(hub);
+/* replaced with 'shrink_until_find
+ *	    this.should_refine_later = true;
+ *	    this.is_estimate = true;
+ */
 	    return 1;
 	}
     };
@@ -174,6 +185,17 @@ function TimeRadius(args) {
 		else if(point.lower_bound != null) {
 		    point.current = point.lower_bound;
 		    point.time = point.lower_time;
+/*
+		if(point.lower_bound != null && 
+		   point.lower_time - this.time < this.error &&
+		   point.lower_time - this.time < this.time - point.upper_time) {
+		    point.current = point.lower_bound;
+		    point.time = point.lower_time;
+		}
+		else if(point.upper_bound != null) {
+		    point.current = point.upper_bound;
+		    point.time = point.upper_time;
+*/
 		} else {
 		    point.current = null;
 		}
@@ -407,12 +429,32 @@ function get_time_bounds() {
     );
 }
 
+var calculate_iter = 0;
 function calculate_time_bounds(response, status) {
     if(status == "OK") {
 	time_radius.process_times(response.rows[0].elements);
 	output_times(response);
 	//	map_container.set_boundary(time_radius.points, time_radius.center);
 	var cont = time_radius.refine_points();
+
+/*
+	if(calculate_iter < 4) {
+	    if(cont) {
+		get_time_bounds();
+	    } else {
+		calculate_iter++;
+		if(calculate_iter < 4) {
+		    if(calculate_iter == 4 - 1) {
+			time_radius.is_done = true;
+		    }
+		    time_radius.num_iterations = 0;
+		    get_time_bounds();
+		}
+	    }
+	} 
+	map_container.set_boundary(time_radius.points, time_radius.center);
+	map_container.map.fitBounds(time_radius.get_bounds());
+*/
 	if(cont){
 	    get_time_bounds();
 	} else {
