@@ -249,6 +249,7 @@ function TimeRadius(args) {
 		}
 	    }
 */
+	    // tests convergence.
 	    if(Helpers.distance_estimate(point.last_point,point.current) > .03) {
 		return false;
 	    }
@@ -432,6 +433,8 @@ function initialize() {
     map_container = new MapContainer(null);
     services = new Services(null);
     var latLng = new google.maps.LatLng(39.8282, -98.5795);
+
+    $("#progress_bar_container").hide();
     map_container.map = new google.maps.Map(form_container.map, {
 	zoom: 4,
 	center: latLng,
@@ -489,9 +492,16 @@ function calculate_time_bounds(response, status) {
 	//	map_container.set_boundary(time_radius.points, time_radius.center);
 	var cont = time_radius.refine_points();
 
+	var percentage_complete = 
+	    (time_radius.num_iterations/time_radius.max_iterations) * 100;
+	
+	$("#progress_bar_container").show();
+	$("#progress_bar").css("width", percentage_complete.toString() + "%");
+
 	if(cont){
 	    get_time_bounds();
 	} else {
+	    $("#progress_bar_container").hide();
 	    map_container.set_boundary(time_radius.points, time_radius.center);
 	    map_container.map.fitBounds(time_radius.get_bounds());
 	}
