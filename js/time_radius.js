@@ -442,9 +442,13 @@ function initialize() {
     });
 }
 
+var in_progress = false;
 function run() {
-    var address = form_container.get_address();
-    services.geocoder.geocode({address: address}, find_time_radius);
+    if(! in_progress) {
+	in_progress = true;
+	var address = form_container.get_address();
+	services.geocoder.geocode({address: address}, find_time_radius);
+    }
 }
 
 //var first = true;
@@ -504,6 +508,7 @@ function calculate_time_bounds(response, status) {
 	    $("#progress_bar_container").hide();
 	    map_container.set_boundary(time_radius.points, time_radius.center);
 	    map_container.map.fitBounds(time_radius.get_bounds());
+	    in_progress = false;
 	}
     } else {
 	timeout *= 2;
