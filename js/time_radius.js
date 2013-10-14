@@ -27,6 +27,7 @@ var Helpers = {
 
 function RadialPoint() {
     this.current = null;
+    this.last_point = null;
     this.upper_bound = null;
     this.lower_bound = null;
     this.time = -1;
@@ -37,6 +38,7 @@ function RadialPoint() {
     this.is_estimate = true;
 
     this.update_bounds = function(goal_time, hub) {
+	this.last_point = this.current;
 	// update lower and upper bounds
 	if(time_radius.num_iterations == 0) return;
 	if(this.time >= 0) {
@@ -185,8 +187,9 @@ function TimeRadius(args) {
 	    }
 	}
 	
+	var points_ok = this.check_points();
 	this.num_iterations += 1;
-	if(this.num_iterations == this.max_iterations) {
+	if(points_ok || this.num_iterations == this.max_iterations) {
 	    for(var i in this.points) {
 		var point = this.points[i];
 		if(point.upper_bound != null && 
@@ -216,12 +219,42 @@ function TimeRadius(args) {
 	    }
 	}
 
-	if(this.num_iterations < this.max_iterations) {
+	if(!points_ok && this.num_iterations < this.max_iterations) {
 	    return true;
 	} else {
 	    return false;
 	}
     };
+
+    this.check_points = function() {
+	for(i in this.points) {
+	    var point = this.points[i];
+/*
+	    if(point.lower_bound == null) {
+		return false;
+	    }
+	    if(point.upper_bound == null && point.upper_nether_region == null) {
+		return false;
+	    }
+	    if(this.time - point.lower_time > this.error
+	       &&
+	       (point.upper_bound != null 
+		&& point.upper_time - this.time > this.error)) {
+		return false;
+	    }
+	    if(point.upper_bound == null && point.upper_nether_region != null) {
+		if(Helpers.distance_estimate(
+		    point.upper_nether_region, point.lower_bound) > .01) {
+		    return false;
+		}
+	    }
+*/
+	    if(Helpers.distance_estimate(point.last_point,point.current) > .03) {
+		return false;
+	    }
+	}
+	return true;
+    }
 
     this.process_times = function(response_elements) {
 	for(var i = 0; i < response_elements.length; i++) {
@@ -440,7 +473,7 @@ function get_time_bounds() {
 	    origins: [time_radius.center],
 	    destinations: time_radius.get_point_array(),
 	    travelMode: form_container.get_route_type(),
-	    durationInTraffic: true,
+	    durationInTraffic: false, // only works for business license ($10,000)
 	    avoidHighways: false,
 	    avoidTolls: false
 	}, calculate_time_bounds
