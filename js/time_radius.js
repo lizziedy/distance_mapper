@@ -6,6 +6,25 @@
  * explicit permission.
 */
 
+var Helpers = {
+    distance_estimate:function(point1, point2) {
+	var lat_dist = point1.lat() - point2.lat();
+	var lon_dist = point1.lng() - point2.lng();
+	var sqr_dist = lat_dist * lat_dist + lon_dist * lon_dist;
+	var dist = Math.sqrt(sqr_dist);
+
+	return dist;
+    },
+
+    get_avg_point:function(point1, point2) {
+	var avg_lat =
+	    (point1.lat() + point2.lat()) / 2;
+	var avg_lon = 
+	    (point1.lng() + point2.lng()) / 2;
+	return new google.maps.LatLng(avg_lat, avg_lon);
+    }
+}
+
 function RadialPoint() {
     this.current = null;
     this.upper_bound = null;
@@ -13,10 +32,11 @@ function RadialPoint() {
     this.time = -1;
     this.upper_time = -1;
     this.lower_time = -1;
+    this.upper_nether_region = null;
     this.should_refine_later = false;
     this.is_estimate = true;
 
-    this.update_bounds = function(goal_time) {
+    this.update_bounds = function(goal_time, hub) {
 	// update lower and upper bounds
 	if(time_radius.num_iterations == 0) return;
 	if(this.time >= 0) {
@@ -29,33 +49,16 @@ function RadialPoint() {
 		this.upper_bound = this.current;
 		this.upper_time = this.time;
 	    }
-	}
-    };
-
-/* replaced with 'shrink_until_find'
-    this.refine_later = function(adjustment_trend, hub, first) {
-	var lat;
-	var lon;
-
-	if(first) {
-	    lat = (this.current.lat() - hub.lat()) * adjustment_trend;
-	    lon = (this.current.lng() - hub.lng()) * adjustment_trend;
 	} else {
-	    if(adjustment_trend == 1 || !this.should_refine_later) {
-		return;
-	    } else if(adjustment_trend > 1) {
-		lat = (this.current.lat() - hub.lat()) * 2;
-		lon = (this.current.lng() - hub.lng()) * 2;
-	    } else if (adjustment_trend < 1) {
-		lat = (this.current.lat() - hub.lat()) / 2;
-		lon = (this.current.lng() - hub.lng()) / 2;
+	    if(this.lower_bound != null && this.upper_bound == null) {
+		if(this.upper_nether_region == null || 
+		   (Helpers.distance_estimate(this.current, hub) < 
+		    Helpers.distance_estimate(this.upper_nether_region, hub))) {
+		    this.upper_nether_region = this.current;
+		}
 	    }
 	}
-
-	this.current = new google.maps.LatLng(hub.lat() + lat, hub.lng() + lon);
-	this.should_refine_later = false;
-    }
-    */
+    };
 
     this.refine_with_upper_lower = function(goal_time, hub) {
 	var diff_lat = this.upper_bound.lat() - this.lower_bound.lat();
@@ -82,12 +85,25 @@ function RadialPoint() {
 	    if(goal_time < this.time) ratio /= 2;
 	    if(goal_time > this.time) ratio *= 2;
 	}
-        var lat = (this.current.lat() - hub.lat()) * ratio;
-        var lon = (this.current.lng() - hub.lng()) * ratio;
-        this.current = new google.maps.LatLng(hub.lat() + lat, hub.lng() + lon);
+	if(this.upper_nether_region != null) {
+	    this.current = Helpers.get_avg_point(this.lower_bound, this.upper_nether_region);
+	} else {
+            var lat = (this.current.lat() - hub.lat()) * ratio;
+            var lon = (this.current.lng() - hub.lng()) * ratio;
+            this.current = new google.maps.LatLng(hub.lat() + lat, hub.lng() + lon);
+	}
 
 	return ratio;
     };
+
+    this.find_near_nowhere = function(hub) {
+	if(this.lower_bound == null) {
+	    this.shrink_until_find(hub);
+	} else {
+	    this.current = 
+		Helpers.get_avg_point(this.lower_bound, this.upper_nether_region);
+	}
+    }
 
     this.shrink_until_find = function(hub) {
 	var lat = (this.current.lat() - hub.lat()) * .5;
@@ -98,7 +114,7 @@ function RadialPoint() {
     this.refine = function (goal_time, hub) {
 	var prev_time = this.time;
 	this.should_refine_later = false;
-	this.update_bounds(goal_time);
+	this.update_bounds(goal_time, hub);
 
 	if(this.upper_bound != null && this.lower_bound != null) {
 	    this.is_estimate = false;
@@ -107,11 +123,8 @@ function RadialPoint() {
 	    this.is_estimate = false;
 	    return this.refine_with_time(goal_time, hub);
 	} else {
-	    this.shrink_until_find(hub);
-/* replaced with 'shrink_until_find
- *	    this.should_refine_later = true;
- *	    this.is_estimate = true;
- */
+	    this.find_near_nowhere(hub);
+	    //this.shrink_until_find(hub);
 	    return 1;
 	}
     };
@@ -123,7 +136,7 @@ function TimeRadius(args) {
     this.time = 20; // minutes
     this.error = 1;
     this.num_points = 20;
-    this.max_iterations = 5;
+    this.max_iterations = 10;
     this.num_iterations = 0;
 
     if(args['center']) {
@@ -188,25 +201,15 @@ function TimeRadius(args) {
 			point.current = point.lower_bound;
 			point.time = point.lower_time;
 		    } else if (point.upper_bound != null) {
-			var avg_lat = (point.lower_bound.lat() + point.upper_bound.lat()) / 2;
-			var avg_lon = (point.lower_bound.lng() + point.upper_bound.lng()) / 2;
-			point.current = new google.maps.LatLng(avg_lat, avg_lon);
+			point.current = Helpers.get_avg_point(
+			    point.lower_bound, point.upper_bound);
 			point.time = (point.lower_time + point.upper_time) / 2;
+		    } else if (point.upper_nether_region != null) {
+			point.current = point.upper_nether_region;
 		    } else {
 			point.current = point.lower_bound;
 			point.time = point.lower_time;
 		    }
-/*
-		if(point.lower_bound != null && 
-		   point.lower_time - this.time < this.error &&
-		   point.lower_time - this.time < this.time - point.upper_time) {
-		    point.current = point.lower_bound;
-		    point.time = point.lower_time;
-		}
-		else if(point.upper_bound != null) {
-		    point.current = point.upper_bound;
-		    point.time = point.upper_time;
-*/
 		} else {
 		    point.current = null;
 		}
@@ -408,13 +411,18 @@ function run() {
     services.geocoder.geocode({address: address}, find_time_radius);
 }
 
+//var first = true;
 function find_time_radius(results, status) {
     if(status == "OK") {
+//	if(first) {
 	var center = results[0].geometry.location;
 	var time = form_container.get_time();
 
 	time_radius = new TimeRadius({center: center, time: time});
 	map_container.map.setCenter(time_radius.center);
+
+//	    first = false;
+//	}
 	get_time_bounds();
     };
 }
@@ -439,9 +447,10 @@ function get_time_bounds() {
     );
 }
 
-var calculate_iter = 0;
+var timeout = 60;
 function calculate_time_bounds(response, status) {
     if(status == "OK") {
+	timeout = 60;
 	time_radius.process_times(response.rows[0].elements);
 	output_times(response);
 	//	map_container.set_boundary(time_radius.points, time_radius.center);
@@ -454,7 +463,8 @@ function calculate_time_bounds(response, status) {
 	    map_container.map.fitBounds(time_radius.get_bounds());
 	}
     } else {
-	setTimeout(get_time_bounds, 1000);
+	timeout *= 2;
+	setTimeout(get_time_bounds, timeout);
     }
 }
 
